@@ -314,6 +314,23 @@ Statistic DataStats::GetNumberOfZeros(size_t index) const {
     return Statistic(IntToINumeric(int_type, count), &int_type, false);
 }
 
+Statistic DataStats::GetNumberOfNegatives(size_t index) const {
+    if (all_stats_[index].num_negatives.HasValue()) return all_stats_[index].num_negatives;
+    const mo::TypedColumnData& col = col_data_[index];
+    if (!col.IsNumeric()) return {};
+    auto& type = static_cast<const mo::INumericType&>(col.GetType());
+    std::byte* zero = IntToINumeric(type, 0);
+    mo::IntType int_type;
+    auto pred = [&zero, &type](auto el) {
+        if (!el) return false;
+        return type.Compare(el, zero) == mo::CompareResult::kLess;
+    };
+    size_t count = CountIf(pred, index);
+    type.Free(zero);
+
+    return Statistic(IntToINumeric(int_type, count), &int_type, false);
+}
+
 unsigned long long DataStats::ExecuteInternal() {
     auto start_time = std::chrono::system_clock::now();
     double percent_per_col = kTotalProgressPercent / all_stats_.size();
@@ -330,6 +347,7 @@ unsigned long long DataStats::ExecuteInternal() {
             all_stats_[index].skewness = GetSkewness(index);
             all_stats_[index].STD = GetCorrectedSTD(index);
             all_stats_[index].num_zeros = GetNumberOfZeros(index);
+            all_stats_[index].num_negatives = GetNumberOfNegatives(index);
         }
         // distinct for mixed type will be calculated here
         all_stats_[index].is_categorical = IsCategorical(

@@ -74,6 +74,7 @@ public:
     // Returns number of zeros in the column if it's numeric.
     Statistic GetNumberOfZeros(size_t index) const;
     // Returns number of negative numbers in the column if it's numeric.
+    Statistic GetNumberOfNegatives(size_t index) const;
 
     const ColumnStats& GetAllStats(size_t index) const;
     const std::vector<ColumnStats>& GetAllStats() const;
