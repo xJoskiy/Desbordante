@@ -49,6 +49,19 @@ TEST(TestDataStats, TestNullEmpties) {
     EXPECT_FALSE(stats.GetQuantile(0.25, 0).HasValue());
     EXPECT_FALSE(stats.GetQuantile(0.5, 0).HasValue());
     EXPECT_FALSE(stats.GetQuantile(0.75, 0).HasValue());
+    EXPECT_FALSE(stats.GetNumberOfZeros(0).HasValue());
+}
+
+TEST(TestDataStats, TestGetNumberOfZeros) {
+    auto test = [](const std::string &file_name, size_t &&index, bool has_header = true) {
+        auto stats_ptr = MakeStatPrimitive(file_name, ',', has_header);
+        algos::DataStats &stats = *stats_ptr;
+        auto num_zeros_stat = stats.GetNumberOfZeros(index);
+        auto num_zeros = mo::Type::GetValue<mo::Int>(num_zeros_stat.GetData());
+        return num_zeros;
+    };
+    EXPECT_EQ(5, test("BernoulliRelation.csv", 0));  // Int zeros
+    EXPECT_EQ(3, test(test_file_name, 7, false));    // Double zeros
 }
 
 TEST(TestDataStats, TestMinString) {
@@ -101,7 +114,7 @@ TEST(TestDataStats, TestDistinct) {
     algos::DataStats &stats = *stats_ptr;
     auto distinct = stats.Distinct(3);
     EXPECT_EQ(5, distinct);
-    EXPECT_EQ(6, stats.Distinct(5)); // mixed column
+    EXPECT_EQ(6, stats.Distinct(5));  // mixed column
 }
 
 TEST(TestDataStats, TestDistinctStringColumn) {
@@ -144,9 +157,9 @@ TEST(TestDataStats, TestShowSample) {
     auto stats_ptr = MakeStatPrimitive(test_file_name, ',', false);
     algos::DataStats &stats = *stats_ptr;
     std::vector<std::vector<std::string>> sample = stats.ShowSample(1, 8, 1, 5);
-    for(const auto& row : sample) {
+    for (const auto &row : sample) {
         std::stringstream result;
-        for(const auto& str : row) {
+        for (const auto &str : row) {
             result << str << " \t";
         }
         LOG(INFO) << result.str();
@@ -186,7 +199,7 @@ TEST(TestDataStats, CorrectExecutionEmpty) {
     EXPECT_EQ(stats.GetAllStats().size(), 0);
 }
 
-//To measure performace of mining statistics in multiple threads.
+// To measure performace of mining statistics in multiple threads.
 #if 0
 TEST(TestCsvStats, TestDiffThreadNum) {
     for(unsigned thread_num = 1; thread_num < 9; ++thread_num) {

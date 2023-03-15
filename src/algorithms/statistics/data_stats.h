@@ -30,6 +30,9 @@ public:
 
     const std::vector<model::TypedColumnData>& GetData() const noexcept;
 
+    // Returns number of elements in the column satisfying the predicate
+    template <class Predicate>
+    size_t CountIf(Predicate, size_t) const;
     // Returns number of non-NULL and nonempty values in the column.
     size_t NumberOfValues(size_t index) const;
     // Returns number of columns in table.
@@ -68,10 +71,15 @@ public:
     Statistic GetQuantile(double part, size_t index, bool calc_all = false);
     // Deletes null and empty values in the column.
     std::vector<const std::byte*> DeleteNullAndEmpties(size_t index);
+    // Returns number of zeros in the column if it's numeric.
+    Statistic GetNumberOfZeros(size_t index) const;
+    // Returns number of negative numbers in the column if it's numeric.
 
     const ColumnStats& GetAllStats(size_t index) const;
     const std::vector<ColumnStats>& GetAllStats() const;
     std::string ToString() const;
+
+    friend std::byte* IntToINumeric(model::INumericType&, int);
 };
 
 }  // namespace algos

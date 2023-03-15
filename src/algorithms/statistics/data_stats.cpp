@@ -276,6 +276,44 @@ Statistic DataStats::GetQuantile(double part, size_t index, bool calc_all) {
     return Statistic(data[quantile], &col.GetType(), true);
 }
 
+template <class Func>
+size_t DataStats::CountIf(Func pred, size_t index) const {
+    const mo::TypedColumnData& col = col_data_[index];
+    const std::vector<const std::byte*>& data = col.GetData();
+    size_t count = 0;
+    for (size_t i = 0; i < data.size(); i++) {
+        if (pred(data[i])) count++;
+    }
+
+    return count;
+}
+
+std::byte* IntToINumeric(const mo::INumericType& type, int num) {
+    mo::IntType int_type;
+    mo::DoubleType double_type;
+    bool is_double = type.GetTypeId() == +mo::TypeId::kDouble;
+    std::byte* zero = (is_double ? double_type.MakeValue(num) : int_type.MakeValue(num));
+
+    return zero;
+}
+
+Statistic DataStats::GetNumberOfZeros(size_t index) const {
+    if (all_stats_[index].num_zeros.HasValue()) return all_stats_[index].num_zeros;
+    const mo::TypedColumnData& col = col_data_[index];
+    if (!col.IsNumeric()) return {};
+    auto& type = static_cast<const mo::INumericType&>(col.GetType());
+    std::byte* zero = IntToINumeric(type, 0);
+    mo::IntType int_type;
+    auto pred = [&zero, &type](auto el) {
+        if (!el) return false;
+        return type.Compare(el, zero) == mo::CompareResult::kEqual;
+    };
+    size_t count = CountIf(pred, index);
+    type.Free(zero);
+
+    return Statistic(IntToINumeric(int_type, count), &int_type, false);
+}
+
 unsigned long long DataStats::ExecuteInternal() {
     auto start_time = std::chrono::system_clock::now();
     double percent_per_col = kTotalProgressPercent / all_stats_.size();
@@ -291,6 +329,7 @@ unsigned long long DataStats::ExecuteInternal() {
             all_stats_[index].kurtosis = GetKurtosis(index);
             all_stats_[index].skewness = GetSkewness(index);
             all_stats_[index].STD = GetCorrectedSTD(index);
+            all_stats_[index].num_zeros = GetNumberOfZeros(index);
         }
         // distinct for mixed type will be calculated here
         all_stats_[index].is_categorical = IsCategorical(
