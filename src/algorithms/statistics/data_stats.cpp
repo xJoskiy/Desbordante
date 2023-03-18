@@ -351,6 +351,33 @@ Statistic DataStats::GetSumOfSquares(size_t index) const {
     return Statistic(res, &type, false);
 }
 
+Statistic DataStats::GetGeometricMean(size_t index) const {
+    if (all_stats_[index].geometric_mean.HasValue()) return all_stats_[index].geometric_mean;
+    const mo::TypedColumnData& col = col_data_[index];
+    if (!col.IsNumeric()) return {};
+    const auto& type = static_cast<const mo::INumericType&>(col.GetType());
+    const std::vector<const std::byte*> data = col.GetData();
+    auto double_type = mo::DoubleType();
+    std::byte* res = IntToINumeric(type, 1);
+    auto zero = IntToINumeric(type, 0);
+    for (size_t i = 0; i < data.size(); i++) {
+        if (col.IsNullOrEmpty(i)) continue;
+        if (type.Compare(data[i], zero) == mo::CompareResult::kLess) {
+            type.Free(zero);
+            type.Free(res);
+            return {};
+        }
+        type.Mul(res, data[i], res);
+    }
+    auto temp = res;
+    res = mo::DoubleType::MakeFrom(temp, type);
+    double_type.Power(res, 1 / (long double)NumberOfValues(index), res);
+    type.Free(temp);
+    type.Free(zero);
+
+    return Statistic(res, &double_type, false);
+}
+
 unsigned long long DataStats::ExecuteInternal() {
     auto start_time = std::chrono::system_clock::now();
     double percent_per_col = kTotalProgressPercent / all_stats_.size();
@@ -369,6 +396,7 @@ unsigned long long DataStats::ExecuteInternal() {
             all_stats_[index].num_zeros = GetNumberOfZeros(index);
             all_stats_[index].num_negatives = GetNumberOfNegatives(index);
             all_stats_[index].sum_of_squares = GetSumOfSquares(index);
+            all_stats_[index].geometric_mean = GetGeometricMean(index);
         }
         // distinct for mixed type will be calculated here
         all_stats_[index].is_categorical = IsCategorical(
