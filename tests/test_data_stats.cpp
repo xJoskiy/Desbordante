@@ -53,6 +53,15 @@ TEST(TestDataStats, TestNullEmpties) {
     EXPECT_FALSE(stats.GetNumberOfNegatives(0).HasValue());
     EXPECT_FALSE(stats.GetSumOfSquares(0).HasValue());
     EXPECT_FALSE(stats.GetGeometricMean(0).HasValue());
+    EXPECT_FALSE(stats.GetMAD(0).HasValue());
+}
+
+TEST(TestDataStats, TestMAD) {
+    auto stats_ptr = MakeStatPrimitive(test_file_name, ',', false);
+    algos::DataStats &stats = *stats_ptr;
+    auto MAD_stat = stats.GetMAD(7);
+    auto MAD = mo::Type::GetValue<mo::Double>(MAD_stat.GetData());
+    EXPECT_DOUBLE_EQ(258.263, MAD);
 }
 
 TEST(TestDataStats, TestGeometricMean) {

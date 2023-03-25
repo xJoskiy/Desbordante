@@ -79,6 +79,8 @@ public:
     Statistic GetSumOfSquares(size_t index) const;
     // Returns geometric mean of numbers in the column if it's numeric.
     Statistic GetGeometricMean(size_t index) const;
+    // Returns median absolute deviation if it's numeric.
+    Statistic GetMAD(size_t index) const;
 
     const ColumnStats& GetAllStats(size_t index) const;
     const std::vector<ColumnStats>& GetAllStats() const;
