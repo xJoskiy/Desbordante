@@ -39,6 +39,8 @@ public:
     size_t GetNumberOfColumns() const;
     // Returns number of columns which contain a null value.
     size_t GetNumberOfColumnsWithNull() const;
+    // Returns number of columns with only null values.
+    size_t GetNumberOfNullColumns() const;
     // Returns number of unique values in the column.
     size_t Distinct(size_t index);
     // Check if quantity <= count of unique values in the column.
