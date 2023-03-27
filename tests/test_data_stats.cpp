@@ -56,6 +56,13 @@ TEST(TestDataStats, TestNullEmpties) {
     EXPECT_FALSE(stats.GetMAD(0).HasValue());
 }
 
+TEST(TestDataStats, TestGetNumberOfColumnsWithNull) {
+    auto stats_ptr = MakeStatPrimitive("TestMetric.csv", ',', false);
+    algos::DataStats &stats = *stats_ptr;
+    size_t num_nulls = stats.GetNumberOfColumnsWithNull();
+    EXPECT_EQ(num_nulls, 10);
+}
+
 TEST(TestDataStats, TestMAD) {
     auto stats_ptr = MakeStatPrimitive(test_file_name, ',', false);
     algos::DataStats &stats = *stats_ptr;

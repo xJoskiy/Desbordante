@@ -448,6 +448,14 @@ unsigned long long DataStats::ExecuteInternal() {
     return elapsed_milliseconds.count();
 }
 
+size_t DataStats::GetNumberOfColumnsWithNull() const {
+    size_t count = 0;
+    for (size_t i = 0; i < col_data_.size(); i++)
+        if (col_data_[i].GetNumNulls() != 0) count++;
+
+    return count;
+}
+
 size_t DataStats::GetNumberOfColumns() const {
     return col_data_.size();
 }
