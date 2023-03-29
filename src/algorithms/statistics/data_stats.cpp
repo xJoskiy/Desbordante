@@ -404,6 +404,15 @@ Statistic DataStats::GetMAD(size_t index) const {
     return Statistic(res, &type, false);
 }
 
+Statistic DataStats::GetNumNulls(size_t index) const {
+    if (all_stats_[index].num_nulls.HasValue()) return all_stats_[index].num_nulls;
+    auto& col = col_data_[index];
+    mo::IntType int_type;
+    size_t count = col.GetNumNulls();
+
+    return Statistic(IntToINumeric(int_type, count), &col.GetType(), false);
+}
+
 unsigned long long DataStats::ExecuteInternal() {
     auto start_time = std::chrono::system_clock::now();
     double percent_per_col = kTotalProgressPercent / all_stats_.size();
@@ -424,6 +433,7 @@ unsigned long long DataStats::ExecuteInternal() {
             all_stats_[index].sum_of_squares = GetSumOfSquares(index);
             all_stats_[index].geometric_mean = GetGeometricMean(index);
             all_stats_[index].MAD = GetMAD(index);
+            all_stats_[index].num_nulls = GetNumNulls(index);
         }
         // distinct for mixed type will be calculated here
         all_stats_[index].is_categorical = IsCategorical(

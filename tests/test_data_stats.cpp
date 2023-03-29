@@ -56,6 +56,14 @@ TEST(TestDataStats, TestNullEmpties) {
     EXPECT_FALSE(stats.GetMAD(0).HasValue());
 }
 
+TEST(TestDataStats, TestGetNumberOfNulls) {
+    auto stats_ptr = MakeStatPrimitive(test_file_name, ',', false);
+    algos::DataStats &stats = *stats_ptr;
+    auto num_nulls_stat = stats.GetNumNulls(0);
+    size_t num_nulls = mo::Type::GetValue<mo::Int>(num_nulls_stat.GetData());
+    EXPECT_EQ(num_nulls, 5);
+}
+
 TEST(TestDataStats, TestGetNumberOfUniqueColumns) {
     auto stats_ptr = MakeStatPrimitive(test_file_name, ',', false);
     algos::DataStats &stats = *stats_ptr;

@@ -87,6 +87,8 @@ public:
     Statistic GetGeometricMean(size_t index) const;
     // Returns median absolute deviation if it's numeric.
     Statistic GetMAD(size_t index) const;
+    // Return number of nulls in the column.
+    Statistic GetNumNulls(size_t index) const;
 
     const ColumnStats& GetAllStats(size_t index) const;
     const std::vector<ColumnStats>& GetAllStats() const;

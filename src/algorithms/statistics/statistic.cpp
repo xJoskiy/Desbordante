@@ -111,6 +111,7 @@ std::unordered_map<std::string, std::string> ColumnStats::ToKeyValueMap() const 
     try_add_stat(sum_of_squares, "sum_of_squares");
     try_add_stat(geometric_mean, "geometric_mean");
     try_add_stat(MAD, "MAD");
+    try_add_stat(num_nulls, "num_nulls");
 
     return res;
 }
