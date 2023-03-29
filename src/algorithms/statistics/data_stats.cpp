@@ -464,6 +464,14 @@ size_t DataStats::GetNumberOfColumnsWithNull() const {
     return count;
 }
 
+size_t DataStats::GetNumberOfUniqueColumns() {
+    size_t count = 0, size = col_data_[0].GetNumRows();
+    for (size_t i = 0; i < col_data_.size(); i++)
+        if (Distinct(i) == size) count++;
+
+    return count;
+}
+
 size_t DataStats::GetNumberOfColumns() const {
     return col_data_.size();
 }

@@ -56,6 +56,13 @@ TEST(TestDataStats, TestNullEmpties) {
     EXPECT_FALSE(stats.GetMAD(0).HasValue());
 }
 
+TEST(TestDataStats, TestGetNumberOfUniqueColumns) {
+    auto stats_ptr = MakeStatPrimitive(test_file_name, ',', false);
+    algos::DataStats &stats = *stats_ptr;
+    size_t num_unique = stats.GetNumberOfUniqueColumns();
+    EXPECT_EQ(num_unique, 2);
+}
+
 TEST(TestDataStats, TestGetNumberOfNullColumns) {
     auto stats_ptr = MakeStatPrimitive("SimpleTypes.csv");
     algos::DataStats &stats = *stats_ptr;
