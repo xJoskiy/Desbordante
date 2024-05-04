@@ -58,12 +58,12 @@ void BindOd(py::module_& main_module) {
     static constexpr auto kOrderName = "Order";
 
     auto fastod_algos_module =
-            BindPrimitiveNoBase<algos::Fastod>(od_module, "Fastod")
+            BindPrimitiveNoBase<algos::Fastod>(od_module, kFastodName)
                     .def("get_asc_ods", &algos::Fastod::GetAscendingDependencies)
                     .def("get_desc_ods", &algos::Fastod::GetDescendingDependencies)
                     .def("get_simple_ods", &algos::Fastod::GetSimpleDependencies);
     auto order_algos_module =
-            BindPrimitiveNoBase<Order>(od_module, "Order").def("get_list_ods", [](Order& algo) {
+            BindPrimitiveNoBase<Order>(od_module, kOrderName).def("get_list_ods", [](Order& algo) {
                 OrderDependencies const& map_res = algo.GetValidODs();
                 std::vector<ListOD> res;
                 for (auto const& [lhs, rhs_list] : map_res) {
