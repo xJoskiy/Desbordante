@@ -84,6 +84,7 @@ py::tuple GetPyType(std::type_index type_index) {
              []() { return MakeTypeTuple(kPyList, py::type::of<config::InputTable>()); }},
             PyTypePair<std::filesystem::path, kPyStr>,
             PyTypePair<std::vector<std::filesystem::path>, kPyList, kPyStr>,
+            PyTypePair<std::string, kPyStr>
     };
     return type_map.at(type_index)();
 }

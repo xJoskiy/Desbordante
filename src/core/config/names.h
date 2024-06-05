@@ -59,4 +59,5 @@ constexpr auto kMemLimitMB = "mem_limit";
 constexpr auto kDifferenceTable = "difference_table";
 constexpr auto kNumRows = "num_rows";
 constexpr auto kNumColumns = "num_columns";
+constexpr auto kDenialConstraint = "denial_constraint";
 }  // namespace config::names
