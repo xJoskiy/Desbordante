@@ -14,6 +14,7 @@
 #include <pybind11/stl/filesystem.h>
 
 #include "core/algorithms/cfd/enums.h"
+#include "core/algorithms/cfd/model/raw_cfd.h"
 #include "core/algorithms/dd/dd.h"
 #include "core/algorithms/gdd/gdd.h"
 #include "core/algorithms/md/hymd/enums.h"
@@ -147,6 +148,8 @@ py::tuple GetPyType(std::type_index type_index) {
             kPyTypePair<config::CustomMetricType, &PyFunction_Type>,
             kPyTypePair<config::CustomMetricsType, &PyList_Type, &PyFunction_Type>,
             kPyTypePair<config::CustomVectorMetricType, &PyFunction_Type>,
+            {typeid(algos::cfd::RawCFD),
+             [] { return MakeTypeTuple(py::type::of<algos::cfd::RawCFD>()); }},
     };
 
     auto const it = type_map.find(type_index);

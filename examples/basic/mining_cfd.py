@@ -36,9 +36,9 @@ def explain_cfd_concept():
     print("* On the other hand, a CFD: (Department=IT) -> (Head=Smith) means that the IT department")
     print("  has Smith as its head. Other departments may or may not follow suit.")
     print()
-    print("* Finally, there is CFD with a wildcard: (Department=IT, Position=_) -> (Location=NYC). The")
-    print("  wildcard symbol allows any values in its place. Therefore, this CFD means that any IT position")
-    print("  in the company is available in NYC.")
+    print("* Finally, there is a mixed CFD: (Department=IT, Position=_) -> (Location=_). The wildcard")
+    print("  symbol allows any values in its place. Therefore, this CFD means that the location is")
+    print("  unambiguously determined by position for the IT department.")
     print()
 
     print(f"{Colors.GREEN_FG}=== Formal Definition ==={Colors.RESET}")
@@ -127,13 +127,13 @@ def create_and_explain_dataset():
 
     print("Expected patterns in this dataset:")
     print("1. We can see that each position has the same salary level. This can be expressed in the")
-    print("   following CFD: Position -> Salary. All managers have high salaries, all developers ")
+    print("   following CFD: (Position=_) -> (Salary=_). All managers have high salaries, all developers")
     print("   have average salaries, etc.")
     print("2. We might expect certain positions to be department-specific, but examining the data reveals")
     print("   that Managers work across multiple departments (IT, HR, Finance). This violates the potential")
-    print("   CFD: Position -> Department, showing that management roles span organizational boundaries.")
+    print("   CFD: (Position=_) -> (Department=_), showing that management roles span organizational boundaries.")
     print("3. Looking at the data, one can note that all HR specialists reside in LA, except for one. This")
-    print("   fact can be expressed by the following CFD: Department=HR -> Location=LA. However, an HR")
+    print("   fact can be expressed by the following CFD: (Department=HR) -> (Location=LA). However, an HR")
     print("   specialist in Boston (row 6) violates this location pattern. Therefore, this CFD does not hold in")
     print("   the dataset.")
     print()
@@ -262,7 +262,7 @@ def display_violations(df, verifier, cfd):
 
     violating_rows = set()
     for highlight in highlights:
-        violating_rows.update(highlight.get_violating_rows)
+        violating_rows.update(highlight.violating_rows)
 
     if not violating_rows:
         return
@@ -273,7 +273,7 @@ def display_violations(df, verifier, cfd):
     rhs_item = cfd.rhs
 
     for j, highlight in enumerate(highlights[:2], start=1):
-        cluster_violating = highlight.get_violating_rows
+        cluster_violating = highlight.violating_rows
         if cluster_violating:
             print(f"  Cluster #{j} violations:")
             for row_idx in list(cluster_violating)[:3]:
