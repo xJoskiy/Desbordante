@@ -14,6 +14,9 @@ target_sources(
             ${CONDITIONS_SRCS}
             column_index/option.cpp
             column_index/validate_index.cpp
+            custom_metric/custom_metric/option.cpp
+            custom_metric/custom_metrics/option.cpp
+            custom_metric/custom_vector_metric/option.cpp
             custom_random_seed/option.cpp
             descriptions.cpp
             equal_nulls/option.cpp
