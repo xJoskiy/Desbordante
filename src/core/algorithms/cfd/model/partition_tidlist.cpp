@@ -67,7 +67,7 @@ PartitionTIdList PartitionTIdList::Intersection(PartitionTIdList const& rhs) con
 
 std::vector<PartitionTIdList> PartitionTIdList::Intersection(
         std::vector<PartitionTIdList const*> const& rhses) const {
-    std::unordered_map<int, int> eq_indices(tids.size());
+    std::unordered_map<int, int> eq_indices(Support());
     std::vector<std::vector<int> > eq_classes(sets_number);
     // Construct a lookup from tid to equivalence class
     int eix = 0;
@@ -84,7 +84,6 @@ std::vector<PartitionTIdList> PartitionTIdList::Intersection(
     std::vector<PartitionTIdList> res;
     for (PartitionTIdList const* rhs : rhses) {
         PartitionTIdList p_tid_list = PartitionTIdList();
-        p_tid_list.sets_number = 0;
         p_tid_list.tids.reserve(tids.size());
         for (unsigned ix = 0; ix <= rhs->tids.size(); ix++) {
             if (ix == rhs->tids.size() || rhs->tids[ix] == PartitionTIdList::kSep) {
@@ -107,7 +106,7 @@ std::vector<PartitionTIdList> PartitionTIdList::Intersection(
         if (!p_tid_list.tids.empty() && p_tid_list.tids.back() == PartitionTIdList::kSep) {
             p_tid_list.tids.pop_back();
         }
-        res.push_back(p_tid_list);
+        res.push_back(std::move(p_tid_list));
     }
     return res;
 }
