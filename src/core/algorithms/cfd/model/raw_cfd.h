@@ -40,8 +40,6 @@ public:
 
     RawCFD() = default;
 
-    std::string ToJSON() const;
-
     std::string ToString() const;
 
     RawItems const& GetLhs() const {
