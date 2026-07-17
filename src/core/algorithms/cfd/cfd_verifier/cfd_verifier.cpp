@@ -4,7 +4,6 @@
 #include <iterator>
 
 #include "core/algorithms/cfd/model/cfd_relation_data.h"
-#include "core/algorithms/cfd/util/cfd_output_util.h"
 #include "core/config/names_and_descriptions.h"
 #include "core/config/option_using.h"
 #include "core/config/tabular_data/input_table/option.h"
@@ -78,7 +77,6 @@ void CFDVerifier::ExecuteInternal() {
     cfd_ = {build_item_ids(raw_cfd_rule_.GetLhs()), build_item_id(raw_cfd_rule_.GetRhs())};
 
     LOG_DEBUG("Starting CFD verification...");
-    LOG_DEBUG("\tRule to verify: {}", cfd::Output::CFDToString(cfd_, relation_));
 
     VerifyCFD();
 
