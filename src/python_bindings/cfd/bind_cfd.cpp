@@ -9,7 +9,7 @@
 #include <pybind11/operators.h>
 #include <pybind11/stl.h>
 
-#include "core/algorithms/cfd/fd_first_algorithm.h"
+#include "core/algorithms/cfd/fd_first/fd_first_algorithm.h"
 #include "core/algorithms/cfd/model/raw_cfd.h"
 #include "python_bindings/py_util/bind_primitive.h"
 #include "python_bindings/py_util/vector_to_tuple.h"
