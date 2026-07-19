@@ -12,7 +12,6 @@ target_link_libraries(
 set(NAME fd.tane)
 desbordante_add_lib(NAME)
 target_sources(${NAME} PRIVATE tane.cpp)
-target_link_libraries(${NAME} PUBLIC magic_enum::magic_enum)
 target_link_libraries(
     ${NAME}
     PRIVATE ${DESBORDANTE_PREFIX}::fd::tane::common ${DESBORDANTE_PREFIX}::fd::pli
@@ -24,7 +23,6 @@ target_link_libraries(
 set(NAME fd.tane.pfd)
 desbordante_add_lib(NAME)
 target_sources(${NAME} PRIVATE pfdtane.cpp)
-target_link_libraries(${NAME} PUBLIC magic_enum::magic_enum)
 target_link_libraries(
     ${NAME} PRIVATE ${DESBORDANTE_PREFIX}::fd::tane::common ${DESBORDANTE_PREFIX}::fd::pli
                     ${DESBORDANTE_PREFIX}::afd ${DESBORDANTE_PREFIX}::afd::pli Boost::headers
