@@ -3358,6 +3358,122 @@ try verifying other AODs, or even load your own datasets to see what you can
 discover!
 '''
 
+snapshots['test_example[basic/verifying_ar.py-None-verifying_ar_output] verifying_ar_output'] = '''This example demonstrates how to validate Association Rules (AR) using the Desbordante library. Association rules discover relationships between itemsets in data (X -> Y). AR validation checks if rules hold by calculating Support (frequency of \'X union Y\') and Confidence (how often Y appears in transactions with X), comparing them to thresholds. More details on association rules can be found in "Frequent Pattern Mining" by Charu C. Aggarwal.
+
+Desbordante can be particularly helpful when association rules have already been mined, and changes occur in the data, potentially altering or invalidating existing rules. To understand what's happening with the data, Desbordante provides several types of clusters to categorize records, based on the completeness of the left and right-hand sides of the rule within each record: 
+1) Transaction has a complete left side of the rule and an incomplete right side; 
+2) Full left side, no right side; 
+3) Incomplete left side, full right side; 
+4) Incomplete left side, incomplete right side; 
+5) Incomplete left side, no right side;
+Note that if either part of the rule consists of a single element, cluster types where the corresponding part is incomplete will be empty.
+
+As the first example, let\'s look at the dataset containing receipts from some supermarket using input_format="tabular". In this format, each table row lists all items participating in the same transaction. Note that, in this table, some rows may be shorter than others.
+
+|--:|:------:|:------:|:------:|:----:|
+| 0 | Bread  | Butter |  Milk  | nan  |
+| 1 |  Eggs  |  Milk  | Yogurt | nan  |
+| 2 | Bread  | Cheese |  Eggs  | Milk |
+| 3 |  Eggs  |  Milk  | Yogurt | nan  |
+| 4 | Cheese |  Milk  | Yogurt | nan  |
+
+Let's check if the rule [Bread] -> [Butter] holds for the given confidence 0.6 and support 0.2:
+
+AR holds: \x1b[1;31mFalse\x1b[0m
+actual confidence: \x1b[1;33m0.50 \x1b[0m
+actual support: \x1b[1;32m0.20 \x1b[0m
+Total number of transactions satisfying AR: 4
+Total number of transactions violating AR: 1
+Number of clusters violating AR: 1
+Clusters violating AR:
+full_left_no_right : [2]
+
+
+You can see that the actual values of support and confidence are different from those requested. Let's examine the clusters that exhibit this violation: transaction #2 contains the entire left side of the association rule but is missing the right side, indicating a potential error:
+
+['Bread', 'Cheese', 'Eggs', 'Milk']
+
+Assume we are certain that the data is corrupted and that the transaction #2 should contain 'Butter'. We will fix this record and re-validate the rule.
+|--:|:------:|:------:|:------:|:----:|:------:|
+| 0 | Bread  | Butter |  Milk  | nan  |  nan   |
+| 1 |  Eggs  |  Milk  | Yogurt | nan  |  nan   |
+| 2 | Bread  | Cheese |  Eggs  | Milk | Butter |
+| 3 |  Eggs  |  Milk  | Yogurt | nan  |  nan   |
+| 4 | Cheese |  Milk  | Yogurt | nan  |  nan   |
+
+AR holds: \x1b[1;32mTrue\x1b[0m
+actual confidence: \x1b[1;32m1.00 \x1b[0m
+actual support: \x1b[1;32m0.40 \x1b[0m
+
+Now, with the corrected data, we see the association rule [Bread] -> [Butter] holds with the given support and confidence values.
+
+
+Let's look at a rule whose left side consists of several elements. Rule [Milk, Yogurt] -> [Eggs] with support = 0.6, confidence = 0.6
+|--:|:------:|:------:|:------:|:----:|
+| 0 | Bread  | Butter |  Milk  | nan  |
+| 1 |  Eggs  |  Milk  | Yogurt | nan  |
+| 2 | Bread  | Cheese |  Eggs  | Milk |
+| 3 |  Eggs  |  Milk  | Yogurt | nan  |
+| 4 | Cheese |  Milk  | Yogurt | nan  |
+
+AR holds: \x1b[1;31mFalse\x1b[0m
+actual confidence: \x1b[1;32m0.67 \x1b[0m
+actual support: \x1b[1;33m0.40 \x1b[0m
+Total number of transactions satisfying AR: 2
+Total number of transactions violating AR: 3
+Number of clusters violating AR: 3
+Clusters violating AR:
+full_left_no_right : [4]
+partial_left_full_right : [2]
+partial_left_no_right : [0]
+
+As you can see, this rule doesn't hold well on this dataset. We have several clusters of violating transactions, suggesting a mismatch.
+Observed exceptions suggest that the minimum support or confidence level needs to be changed, or that the entire rule needs to be revised.
+Let's try modifying the rule. We will remove 'Yogurt' from the left side and re-validate the rule [Milk] -> [Eggs]. This represents a scenario where we weaken the rule to see if it better fits the data.
+
+AR holds: \x1b[1;32mTrue\x1b[0m
+actual confidence: \x1b[1;32m0.60 \x1b[0m
+actual support: \x1b[1;32m0.60 \x1b[0m
+
+This highlights that our initial AR, with these parameters, might not be suitable for this dataset. We've chosen to modify the rule (by removing 'Yogurt'), which is just one approach. We could also decrease the minimum support value instead.
+
+
+For the second example, let\'s take a dataset with the same receipts from the same supermarket, changing the input format to input_format="singular". This is a two-column format, where the first column contains the transaction number, and the second column specifies the item that belongs to that transaction.
+
+This way of representing the original data can sometimes be useful. Desbordante offers the same rule validation capabilities for this format and produces the same clusters of exceptions.
+
+Lets re-run the first example over the same data represented in singular data format. We are checking the same rule [Bread] -> [Butter], support = 0.2 and confidence = 0.6:
+
+|--:|:------:|
+| 1 | Bread  |
+| 1 | Butter |
+| 3 | Cheese |
+| 2 |  Eggs  |
+| 1 |  Milk  |
+| 2 |  Milk  |
+| 2 | Yogurt |
+| 3 | Bread  |
+| 3 |  Eggs  |
+| 3 |  Milk  |
+| 4 |  Eggs  |
+| 4 |  Milk  |
+| 4 | Yogurt |
+| 5 | Cheese |
+| 5 |  Milk  |
+| 5 | Yogurt |
+
+AR holds: \x1b[1;31mFalse\x1b[0m
+actual confidence: \x1b[1;33m0.50 \x1b[0m
+actual support: \x1b[1;32m0.20 \x1b[0m
+Total number of transactions satisfying AR: 4
+Total number of transactions violating AR: 1
+Number of clusters violating AR: 1
+Clusters violating AR:
+full_left_no_right : [3]
+
+Everything is the same, except the transaction numbers, used in clusters (3 in singular vs 2 in tabular). This format offers explicit transaction IDs, therefore we use them instead of row numbers.
+'''
+
 snapshots['test_example[basic/verifying_aucc.py-None-verifying_aucc_output] verifying_aucc_output'] = '''Dataset AUCC_example.csv:
    ID  name  card_num  card_active
 0   1  Alex       665         True
@@ -4130,6 +4246,405 @@ Num distinct rhs values: 2
 Most frequent rhs value proportion: 0.5
 Num distinct rhs values: 2
 
+'''
+
+snapshots['test_example[basic/verifying_gdd/verifying_gdd1.py-None-verifying_gdd1_output] verifying_gdd1_output'] = '''This example demonstrates Graph Differential Dependency
+(GDD) validation.
+
+The pattern is defined in the paper
+
+"Zhang, Y., Kwashie, S., Bewong, M., Hu, J., Mahboubi, A.,
+Guo, X., & Feng, Z. Discovering graph differential dependencies.
+Australasian Database Conference (ADC), 2023."
+
+\x1b[95mBasic definition\x1b[0m
+
+A Graph Differential Dependency has the form
+
+    (Q[z], ΦL(X) -> ΦR(Y))
+
+Here Q[z] is a graph pattern, while ΦL(X) and ΦR(Y) are sets of
+distance constraints over the variables of that pattern.
+
+Semantically, a GDD states the following: for every homomorphic match
+of the pattern in the graph, if all constraints from the left-hand
+side hold, then all constraints from the right-hand side must also
+hold.
+
+In simpler terms, a GDD is a formal implication checked on all
+homomorphic matches of the pattern.
+
+The difference between a homomorphic match and an isomorphic match
+will be shown in the next example.
+
+\x1b[95mParameters\x1b[0m
+
+The validator receives two inputs:
+1. the input graph written in DOT;
+2. the list of GDDs to validate.
+
+Each GDD consists of three parts:
+1. a pattern written in DOT;
+2. the left-hand side constraints;
+3. the right-hand side constraints.
+
+In this example we use only attribute-to-constant constraints.
+Currently the Python API also provides relation-based helpers.
+
+\x1b[95mProperty graph definition\x1b[0m
+
+A property graph is a tuple
+
+    G = (V, E, λ, ρ)
+
+where:
+- V is the set of vertices;
+- E is the set of directed edges;
+- λ assigns labels to vertices and edges;
+- ρ stores attribute-value pairs of vertices.
+
+In this example, Person and City are vertex labels.
+Attributes such as "name" and "age" are stored in ρ,
+and "lives_in" is an edge label.
+
+\x1b[95mGraph pattern definition\x1b[0m
+
+A graph pattern Q[z] is a directed graph whose vertices and edges
+also have labels. The list z contains all pattern vertices, that is,
+all pattern variables.
+
+Intuitively, the pattern describes the shape of subgraphs on which
+the dependency is checked.
+
+In this example the pattern is
+
+    Person -[lives_in]-> City
+
+\x1b[95mHomomorphic match definition\x1b[0m
+
+A match of a graph pattern in a graph is a homomorphism h from the
+pattern to the graph such that:
+1. each pattern vertex is mapped to a graph vertex with a matching
+   label;
+2. each pattern edge is mapped to a graph edge with a matching label.
+
+Important: this is a homomorphic match, not necessarily an isomorphic
+one. Distinct pattern vertices may be mapped to the same graph vertex.
+This difference matters in general and will be discussed in the next
+example.
+
+\x1b[95mGDD syntax and semantics\x1b[0m
+
+A Graph Differential Dependency has the form
+
+    (Q[z], ΦL(X) -> ΦR(Y))
+
+where:
+- Q[z] is a graph pattern;
+- ΦL(X) is the left-hand side;
+- ΦR(Y) is the right-hand side;
+- both ΦL(X) and ΦR(Y) are sets of distance constraints.
+
+Let H(Q[z], G) be the set of all matches of Q[z] in graph G.
+Then G satisfies the GDD iff for every match h in H(Q[z], G),
+
+    h |= ΦL(X)  =>  h |= ΦR(Y)
+
+So the left-hand side acts as a precondition, and the right-hand
+side must hold whenever that precondition is satisfied.
+
+\x1b[95mSix forms of distance constraints\x1b[0m
+
+In the paper, distance constraints come in six forms.
+
+1. Attribute-to-constant:
+   δ_A(x.A, c) <= t
+
+2. Attribute-to-attribute:
+   δ_{A1,A2}(x.A1, x'.A2) <= t
+
+3. eid-to-constant:
+   δ_{eid}(x.eid, ce) = 0
+
+4. eid-to-eid:
+   δ_{eid}(x.eid, x'.eid) = 0
+
+5. Relation-to-constant:
+   δ_≡(x.rela, cr) = 0
+
+6. Relation-to-relation:
+   δ_≡(x.rela, x'.rela) = 0
+
+We usually do not use eid constraints, because the identifier of
+the real-world entity is often unknown in the data. It may be
+implemented later.
+
+\x1b[95mHow these constraints are represented in Python\x1b[0m
+
+The current Python bindings conveniently expose these helpers:
+
+1. AttrConst(pid, attr, const, metric, op, threshold)
+   attribute-to-constant
+
+2. AttrAttr(pid1, attr1, pid2, attr2, metric, op, threshold)
+   attribute-to-attribute
+
+3. RelConst(pid, relation, const)
+   relation-to-constant
+
+4. RelRel(pid1, relation1, pid2, relation2)
+   relation-to-relation
+
+For attribute constraints:
+- pid is the pattern vertex id;
+- attr is the attribute name;
+- const is the compared constant, if any;
+- metric is the distance metric;
+- op is the comparison operator;
+- threshold bounds the distance.
+
+Desbordante version of GDD validation implements:
+- EDIT_DISTANCE metric for strings;
+- ABS_DIFF metric for numbers;
+- LE, LT, GE, GT, EQ, NE as the comparison operator.
+
+Note that the original paper describes two comparison operators:
+LE and EQ.
+
+\x1b[95mDataset\x1b[0m
+
+The displayed figure shows a small property graph (on the left).
+
+It contains Person vertices with attributes such as "name" and "age",
+and City vertices with a "name" attribute. The edge "lives_in"
+connects a person to the city where that person lives.
+
+So, informally, the picture describes several people with attributes
+and the cities in which they live. This is the graph on which we will
+validate our dependencies.
+
+\x1b[95mShowcase 1\x1b[0m
+
+Showcase 1. String equality via EDIT_DISTANCE.
+
+We validate the following rule inside the pattern (shown on the right)
+
+    Person -[lives_in]-> City
+
+The concrete dependency says:
+
+    if 0.name = "Misha", then 1.name = "Amsterdam"
+
+Since EDIT_DISTANCE with threshold 0.0 means exact string equality,
+this is simply the implication
+
+    "Misha" -> "Amsterdam"
+
+This dependency is expected not to hold, because not every matched
+person with name "Misha" lives in Amsterdam. One of the two Mishas
+lives in Riga.
+
+\x1b[95mDesbordante > \x1b[0mGDD does not hold.
+
+\x1b[95mShowcase 2\x1b[0m
+
+Showcase 2. Arithmetic distance via ABS_DIFF.
+
+Now we validate another rule on the same pattern (shown on the right
+as well):
+
+    if 0.age < 30, then 1.name = "Amsterdam"
+
+With the current API, ABS_DIFF expresses absolute distance to a
+constant. Therefore, assuming non-negative ages, we encode
+
+    0.age < 30
+
+as
+
+    |0.age - 0| < 30
+
+This is a convenient showcase for ABS_DIFF in this dataset.
+This dependency is expected to hold because, in this graph, every
+matched person younger than 30 lives in Amsterdam. Misha and Bob
+are 25, while the other Misha is 31 and lives in Riga.
+
+\x1b[95mDesbordante > \x1b[0mGDD holds.
+
+\x1b[95mWhat we learned\x1b[0m
+
+In this example we learned how to describe a graph pattern,
+attach distance constraints to its vertices, and validate several GDDs
+in a single validator run on one graph.
+
+We also saw two kinds of constraints in practice:
+exact string equality through EDIT_DISTANCE, and numeric comparison
+through ABS_DIFF.
+
+For a more realistic scenario based on fact checking, read the example
+
+    verifying_gdd2.py
+
+\x1b[93mClose the image window to finish.\x1b[0m
+'''
+
+snapshots['test_example[basic/verifying_gdd/verifying_gdd2.py-None-verifying_gdd2_output] verifying_gdd2_output'] = '''This example demonstrates GDD validation for fact checking.
+
+The pattern is defined in the paper
+
+"Zhang, Y., Kwashie, S., Bewong, M., Hu, J., Mahboubi, A.,
+Guo, X., & Feng, Z. Discovering graph differential dependencies.
+Australasian Database Conference (ADC), 2023."
+
+\x1b[95mGraph\x1b[0m
+
+The figure contains a small fact-checking example.
+
+On the left is the data graph. It stores cities and countries, together
+with two kinds of facts: a city may be a capital of a country, and a
+city may be located in a country.
+
+Here we validate that a country's capital is located on that country's
+territory. In graph terms, for one City vertex, the country reached via
+`capital_of` must coincide with the country reached via `located_in`.
+
+On the right is the graph pattern used by the dependency. Starting from
+one City vertex, it follows both outgoing edges and binds the two
+reached Country variables separately.
+
+
+\x1b[95mHomomorphic matching\x1b[0m
+
+This example is intentionally built around a self-join pattern.
+
+The pattern has one City variable and two Country variables.
+
+It is important to distinguish graph isomorphism from graph homomorphism.
+
+Informally, an isomorphism is a vertex bijection which is both edge-preserving
+and label-preserving mapping. In particular, different pattern vertices must be
+mapped to different graph vertices due to it's injectiveness.
+
+A homomorphism is weaker: it must preserve the labeled edges of the
+pattern, but it does not have to be injective. So two different pattern
+vertices may be mapped to the same graph vertex, as long as all pattern
+edges are still respected in the data graph.
+
+Under the GDD definition from the paper, a match of the pattern is a
+homomorphism, not an isomorphism. Therefore, variables 1 and 2 are not
+required to map to different graph vertices.
+
+So the two Country variables may refer to the same country node.
+Here this is not a corner case but exactly the desired behavior: if
+`capital_of` and `located_in` agree, both variables should be allowed
+to map to the same Country.
+
+
+\x1b[95mPython API used in this example\x1b[0m
+
+This example constructs the dependency with GddFromDotString,
+that is, directly from a DOT string embedded in Python.
+
+This is convenient for compact and self-contained examples. If the
+pattern is already stored in the repository as a DOT file, the same
+idea can be expressed with GddFromDotFile, as in the earlier
+file-based validation example.
+
+Now that the validator can also return counterexamples, we will use
+that functionality on a second dataset where the fact-check fails.
+
+
+\x1b[95mShowcase 1. Consistent dataset\x1b[0m
+
+Showcase 1. Fact checking on a consistent dataset.
+
+We validate the following rule on the pattern:
+
+    if a city has both edges from the pattern,
+    then the countries reached by `capital_of`
+    and `located_in` must have the same name
+
+This is exactly a fact-check that a country's capital is located on the
+territory of that same country.
+
+Formally, the right-hand side is
+
+    1.name = 2.name
+
+implemented as EDIT_DISTANCE == 0.0 between the two country names.
+
+The left-hand side is empty. So the dependency is checked on every
+homomorphic match of the pattern. This is a useful fact-checking
+shape: two different graph paths that start from the same city must
+agree on the country they reach.
+
+In the current graph, Paris reaches France through both edges, and
+Berlin reaches Germany through both edges. Lyon has no `capital_of`
+edge, so it does not instantiate the pattern and does not participate
+in the check. Therefore this dependency is expected to hold.
+
+
+\x1b[95mDesbordante > \x1b[0mGDD holds.
+
+\x1b[93mClose the image window to continue.\x1b[0m
+
+\x1b[95mShowcase 2. Inconsistent dataset\x1b[0m
+
+Showcase 2. Fact checking on an inconsistent dataset.
+
+Now we keep the same schema, the same pattern, and the same GDD, but
+we slightly modify the graph.
+
+Paris is still recorded as the capital of France, but its `located_in`
+edge now points to Germany.
+
+So the dependency is expected not to hold. In this situation, the most
+natural interpretation is that the data are inconsistent: two facts in
+the graph disagree about the same city.
+
+Since the validator can now return counterexamples, we will inspect
+one violating match and see exactly how the pattern was mapped.
+
+
+\x1b[95mDesbordante > \x1b[0mGDD does not hold.
+
+This is likely a data inconsistency: one city is connected to
+different countries through `capital_of` and `located_in`.
+
+\x1b[95mReturned counterexample\x1b[0m
+
+A counterexample is a homomorphic match of the pattern for which
+the implication fails.
+
+Here the left-hand side is empty, so every match satisfies it. Thus a
+counterexample is simply a match for which the right-hand side
+
+    1.name = 2.name
+
+does not hold.
+
+Below we print how each pattern vertex was mapped to the graph.
+
+
+Counterexample match:
+  0 City -> 1 City {'name': 'Paris'}
+  1 Country -> 101 Country {'name': 'France'}
+  2 Country -> 102 Country {'name': 'Germany'}
+
+\x1b[95mWhat we learned\x1b[0m
+
+In this example we used GDD validation as a consistency check
+between two different paths in a graph.
+
+Concretely, we checked that if a city is recorded as the capital of a
+country, then that city is also recorded as being located in the same
+country.
+
+We also saw how a returned counterexample can be interpreted as a
+concrete witness of a likely inconsistency in the data.
+
+
+\x1b[93mClose the image window to finish.\x1b[0m
 '''
 
 snapshots['test_example[basic/verifying_gfd/verifying_gfd1.py-None-verifying_gfd1_output] verifying_gfd1_output'] = '''The graph is depicted in figure. The following abbreviations were used: A - account, B - blog. Vertices labeled A have a "name" attribute showing the nickname; vertices labeled B - "author", indicating who wrote the blog. The values of these attributes are labeled next to the vertices. The edges are also labeled as: "post", which indicates who wrote the blog, and "like", which indicates approval by another person. In the drawing, the edges are marked "post" in bold.

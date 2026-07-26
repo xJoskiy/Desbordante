@@ -27,11 +27,13 @@ These scenarios showcase a single pattern by discussing its definition and provi
 + [mining_ucc.py](https://github.com/Desbordante/desbordante-core/tree/main/examples/basic/mining_ucc.py) — a scenario showing how to discover exact unique column combinations.
 
 ## Verification
++ [verifying_ar.py](https://github.com/Desbordante/desbordante-core/tree/main/examples/basic/verifying_ar.py) — a scenario showing how to verify an association rules.
 + [verifying_aucc.py](https://github.com/Desbordante/desbordante-core/tree/main/examples/basic/verifying_aucc.py) — a scenario showing how to verify an approximate unique column combination.
 + [verifying_cfd.py](https://github.com/Desbordante/desbordante-core/tree/main/examples/basic/verifying_cfd.py) — a scenario showing how to verify a conditional functional dependency.
 + [verifying_dc.py](https://github.com/Desbordante/desbordante-core/tree/main/examples/basic/verifying_dc.py) — a scenario showing how to verify a denial constraint.
 + [verifying_dd.py](https://github.com/Desbordante/desbordante-core/tree/main/examples/basic/verifying_dd.py) — a scenario showing how to verify a differential dependency.
 + [verifying_fd_afd.py](https://github.com/Desbordante/desbordante-core/tree/main/examples/basic/verifying_fd_afd.py) — a scenario showing how to verify exact and approximate functional dependencies.
++ [verifying_gdd](https://github.com/Desbordante/desbordante-core/tree/main/examples/basic/verifying_gdd) — a scenario showing how to verify a graph differential dependency.
 + [verifying_gfd](https://github.com/Desbordante/desbordante-core/tree/main/examples/basic/verifying_gfd) — a scenario showing how to verify a graph functional dependency.
 + [verifying_ind_aind.py](https://github.com/Desbordante/desbordante-core/tree/main/examples/basic/verifying_ind_aind.py) — a scenario showing how to verify an approximate and exact inclusion dependencies.
 + [verifying_md.py](https://github.com/Desbordante/desbordante-core/tree/main/examples/basic/verifying_md.py) — a scenario showing how to verify a matching dependency.
