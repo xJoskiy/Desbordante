@@ -6,7 +6,8 @@
 
 #include "core/algorithms/fd/afd.h"
 #include "core/algorithms/fd/afd_algorithm.h"
-#include "core/algorithms/fd/mining_algorithms.h"
+#include "core/algorithms/fd/tane/pfdtane.h"
+#include "core/algorithms/fd/tane/tane.h"
 #include "python_bindings/py_util/bind_primitive.h"
 #include "python_bindings/py_util/table_serialization.h"
 
