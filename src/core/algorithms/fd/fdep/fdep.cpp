@@ -74,8 +74,8 @@ void FDep::AddViolatedFDs(std::vector<size_t> const& t1, std::vector<size_t> con
     }
 
     equal_attr &= (~diff_attr);
-    for (size_t attr = diff_attr._Find_first(); attr != FDTreeElement::kMaxAttrNum;
-         attr = diff_attr._Find_next(attr)) {
+    for (size_t attr = model::FindFirst(diff_attr); attr != FDTreeElement::kMaxAttrNum;
+         attr = model::FindNext(diff_attr, attr)) {
         this->neg_cover_tree_->AddFunctionalDependency(equal_attr, attr);
     }
 }

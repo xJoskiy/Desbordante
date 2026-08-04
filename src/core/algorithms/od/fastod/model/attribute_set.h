@@ -112,11 +112,11 @@ public:
     }
 
     model::ColumnIndex FindFirst() const noexcept {
-        return bitset_._Find_first();
+        return model::FindFirst(bitset_);
     }
 
     model::ColumnIndex FindNext(model::ColumnIndex pos) const noexcept {
-        return bitset_._Find_next(pos);
+        return model::FindNext(bitset_, pos);
     }
 
     std::string ToString() const;
