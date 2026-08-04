@@ -52,7 +52,7 @@ public:
     static AttributeSet FromVector(std::vector<int> const& indices) {
         model::Bitset<kBitsNum> bs;
         for (int idx : indices) {
-            bs._Unchecked_set(static_cast<std::size_t>(idx));
+            bs.set(static_cast<std::size_t>(idx));
         }
         return AttributeSet(std::move(bs));
     }
