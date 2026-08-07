@@ -12,9 +12,11 @@
 
 #include <pybind11/stl.h>
 
+#include "core/algorithms/ind/faida/faida.h"
 #include "core/algorithms/ind/ind.h"
 #include "core/algorithms/ind/ind_algorithm.h"
-#include "core/algorithms/ind/mining_algorithms.h"
+#include "core/algorithms/ind/mind/mind.h"
+#include "core/algorithms/ind/spider/spider.h"
 #include "python_bindings/py_util/bind_primitive.h"
 #include "python_bindings/py_util/table_serialization.h"
 #include "python_bindings/py_util/vector_to_tuple.h"
