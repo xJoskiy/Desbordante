@@ -73,8 +73,6 @@ jobs:
         with:
           os: ${{ matrix.os }}
           toolset: ${{ matrix.toolset }}
-          download-googletest: false
-          download-pybind: true
       - name: Build pip package
         shell: bash
         run: |
