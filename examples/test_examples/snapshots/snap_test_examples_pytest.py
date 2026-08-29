@@ -1248,7 +1248,7 @@ Alice    3       3000
 Bob      4       4000
 Carol    4       4000
 
-A possible DC here is: \x1b[1m\x1b[36m¬{ t.Grade == s.Grade ∧ t.Salary != s.Salary }\x1b[0m
+A possible DC here is: \x1b[1m\x1b[36m¬( t.Grade == s.Grade ∧ t.Salary != s.Salary )\x1b[0m
 
 This means: "It should never happen that two people have the same grade but different salaries.",
 or in other words, if two rows share the same Grade, they must share the same Salary.
@@ -1280,13 +1280,13 @@ TABLE_1 (examples/datasets/taxes_1.csv):
 
 \x1b[33mMining exact DCs (evidence_threshold=0) on TABLE_1\x1b[0m
 \x1b[33mDiscovered DCs:\x1b[0m
-  \x1b[1m\x1b[36m¬{ t.State == s.State ∧ t.Salary >= s.Salary ∧ t.FedTaxRate <= s.FedTaxRate }\x1b[0m
-  \x1b[1m\x1b[36m¬{ t.Salary == s.Salary ∧ t.FedTaxRate == s.FedTaxRate }\x1b[0m
-  \x1b[1m\x1b[36m¬{ t.State == s.State ∧ t.FedTaxRate == s.FedTaxRate }\x1b[0m
-  \x1b[1m\x1b[36m¬{ t.State == s.State ∧ t.Salary == s.Salary }\x1b[0m
+  \x1b[1m\x1b[36m¬( t.State == s.State ∧ t.Salary >= s.Salary ∧ t.FedTaxRate <= s.FedTaxRate )\x1b[0m
+  \x1b[1m\x1b[36m¬( t.Salary == s.Salary ∧ t.FedTaxRate == s.FedTaxRate )\x1b[0m
+  \x1b[1m\x1b[36m¬( t.State == s.State ∧ t.FedTaxRate == s.FedTaxRate )\x1b[0m
+  \x1b[1m\x1b[36m¬( t.State == s.State ∧ t.Salary == s.Salary )\x1b[0m
 
 Note the following Denial Constraint we found:
-\x1b[1m\x1b[36m¬{ t.State == s.State ∧ t.Salary >= s.Salary ∧ t.FedTaxRate <= s.FedTaxRate }\x1b[0m.
+\x1b[1m\x1b[36m¬( t.State == s.State ∧ t.Salary >= s.Salary ∧ t.FedTaxRate <= s.FedTaxRate )\x1b[0m.
 It states that for all people in the same state, the person with a higher salary
 should have a higher tax rate. No pairs of rows should violate that rule.
 
@@ -1295,21 +1295,21 @@ This means we only require that at least half of all row pairs satisfy each DC (
 
 \x1b[33mMining ADCs (evidence_threshold=0.5) on TABLE_1\x1b[0m
 \x1b[33mDiscovered ADCs:\x1b[0m
-  \x1b[1m\x1b[36m¬{ t.Salary >= s.Salary ∧ t.FedTaxRate <= s.FedTaxRate }\x1b[0m
-  \x1b[1m\x1b[36m¬{ t.Salary >= s.Salary ∧ t.FedTaxRate >= s.FedTaxRate }\x1b[0m
-  \x1b[1m\x1b[36m¬{ t.Salary >= s.Salary ∧ t.FedTaxRate != s.FedTaxRate }\x1b[0m
-  \x1b[1m\x1b[36m¬{ t.State != s.State ∧ t.FedTaxRate >= s.FedTaxRate }\x1b[0m
-  \x1b[1m\x1b[36m¬{ t.State != s.State ∧ t.Salary >= s.Salary }\x1b[0m
-  \x1b[1m\x1b[36m¬{ t.FedTaxRate > s.FedTaxRate }\x1b[0m
-  \x1b[1m\x1b[36m¬{ t.Salary > s.Salary }\x1b[0m
-  \x1b[1m\x1b[36m¬{ t.FedTaxRate == s.FedTaxRate }\x1b[0m
-  \x1b[1m\x1b[36m¬{ t.Salary == s.Salary }\x1b[0m
-  \x1b[1m\x1b[36m¬{ t.State == s.State }\x1b[0m
+  \x1b[1m\x1b[36m¬( t.Salary >= s.Salary ∧ t.FedTaxRate <= s.FedTaxRate )\x1b[0m
+  \x1b[1m\x1b[36m¬( t.Salary >= s.Salary ∧ t.FedTaxRate >= s.FedTaxRate )\x1b[0m
+  \x1b[1m\x1b[36m¬( t.Salary >= s.Salary ∧ t.FedTaxRate != s.FedTaxRate )\x1b[0m
+  \x1b[1m\x1b[36m¬( t.State != s.State ∧ t.FedTaxRate >= s.FedTaxRate )\x1b[0m
+  \x1b[1m\x1b[36m¬( t.State != s.State ∧ t.Salary >= s.Salary )\x1b[0m
+  \x1b[1m\x1b[36m¬( t.FedTaxRate > s.FedTaxRate )\x1b[0m
+  \x1b[1m\x1b[36m¬( t.Salary > s.Salary )\x1b[0m
+  \x1b[1m\x1b[36m¬( t.FedTaxRate == s.FedTaxRate )\x1b[0m
+  \x1b[1m\x1b[36m¬( t.Salary == s.Salary )\x1b[0m
+  \x1b[1m\x1b[36m¬( t.State == s.State )\x1b[0m
 
 Here, for example, the 'g1' metric values for a few approximate DCs are:
-\x1b[1m\x1b[36m¬{ t.Salary >= s.Salary ∧ t.FedTaxRate <= s.FedTaxRate }\x1b[0m → 0.486111
-\x1b[1m\x1b[36m¬{ t.Salary >= s.Salary ∧ t.FedTaxRate >= s.FedTaxRate }\x1b[0m → 0.458333
-\x1b[1m\x1b[36m¬{ t.State == s.State }\x1b[0m → 0.25
+\x1b[1m\x1b[36m¬( t.Salary >= s.Salary ∧ t.FedTaxRate <= s.FedTaxRate )\x1b[0m → 0.486111
+\x1b[1m\x1b[36m¬( t.Salary >= s.Salary ∧ t.FedTaxRate >= s.FedTaxRate )\x1b[0m → 0.458333
+\x1b[1m\x1b[36m¬( t.State == s.State )\x1b[0m → 0.25
 Note: A smaller 'g1' value means fewer violations, making the DC more exact.
 
 \x1b[33mConclusion:\x1b[0m
@@ -1320,8 +1320,8 @@ We found both exact and approximate DCs.
 
 Therefore, an approximate DC can logically imply the exact one.
 For example, consider:
-Exact DC: \x1b[1m\x1b[36m¬{ t.State == s.State ∧ t.Salary == s.Salary }\x1b[0m
-Approximate DC: \x1b[1m\x1b[36m¬{ t.Salary == s.Salary }\x1b[0m
+Exact DC: \x1b[1m\x1b[36m¬( t.State == s.State ∧ t.Salary == s.Salary )\x1b[0m
+Approximate DC: \x1b[1m\x1b[36m¬( t.Salary == s.Salary )\x1b[0m
 
 If the approximate DC (which prohibits any two rows from having the same Salary)
 is satisfied for at least the chosen threshold, then clearly no two rows can share both
@@ -1358,11 +1358,11 @@ Let's see how the exact DC mining changes due to this additional record.
 
 \x1b[33mMining exact DCs (evidence_threshold=0) on TABLE_2\x1b[0m
 \x1b[33mDiscovered DCs:\x1b[0m
-  \x1b[1m\x1b[36m¬{ t.Salary == s.Salary ∧ t.FedTaxRate == s.FedTaxRate }\x1b[0m
-  \x1b[1m\x1b[36m¬{ t.State == s.State ∧ t.FedTaxRate == s.FedTaxRate }\x1b[0m
-  \x1b[1m\x1b[36m¬{ t.State == s.State ∧ t.Salary == s.Salary }\x1b[0m
+  \x1b[1m\x1b[36m¬( t.Salary == s.Salary ∧ t.FedTaxRate == s.FedTaxRate )\x1b[0m
+  \x1b[1m\x1b[36m¬( t.State == s.State ∧ t.FedTaxRate == s.FedTaxRate )\x1b[0m
+  \x1b[1m\x1b[36m¬( t.State == s.State ∧ t.Salary == s.Salary )\x1b[0m
 
-We can see that the DC \x1b[1m\x1b[36m¬{ t.State == s.State ∧ t.Salary >= s.Salary ∧ t.FedTaxRate <= s.FedTaxRate }\x1b[0m
+We can see that the DC \x1b[1m\x1b[36m¬( t.State == s.State ∧ t.Salary >= s.Salary ∧ t.FedTaxRate <= s.FedTaxRate )\x1b[0m
 no longer appears because of the violation introduced by record index 9
 (\x1b[32m(Texas, 5000, 0.05)\x1b[0m).
 

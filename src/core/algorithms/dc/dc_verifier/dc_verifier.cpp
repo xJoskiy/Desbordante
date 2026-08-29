@@ -1,4 +1,4 @@
-#include "core/algorithms/dc/verifier/dc_verifier.h"
+#include "core/algorithms/dc/dc_verifier/dc_verifier.h"
 
 #include <algorithm>
 #include <cstddef>
@@ -64,23 +64,27 @@ void DCVerifier::LoadDataInternal() {
 }
 
 void DCVerifier::ExecuteInternal() {
-    dc::DC dc;
     try {
-        dc::DCParser parser = dc::DCParser(dc_string_, relation_.get(), data_);
-        dc = parser.Parse();
+        dc_ = dc::DC(dc_string_, relation_.get(), data_);
     } catch (std::exception const& e) {
         LOG_INFO("{}", e.what());
         return;
     }
 
-    std::string col_name = relation_->GetSchema()->GetColumns().front().get()->GetName();
-    boost::regex re("[0-9]+");
-    bool has_header = !boost::regex_match(col_name, re);
-    index_offset_ = 1 + static_cast<size_t>(has_header);
-    result_ = Verify(dc);
+    result_ = Verify(dc_);
+}
+
+bool DCVerifier::Verify(std::string const& dc_string) {
+    return Verify({dc_string, relation_.get(), data_});
 }
 
 bool DCVerifier::Verify(dc::DC dc) {
+    std::string col_name = relation_->GetSchema()->GetColumns().front().get()->GetName();
+    boost::regex re("[0-9]+");
+    bool has_header = !boost::regex_match(col_name, re);
+
+    // Offset is used for correctly matching csv file
+    index_offset_ = 1 + static_cast<size_t>(has_header);
     dc.ConvertEqualities();
     std::vector<dc::Predicate> no_diseq_preds, diseq_preds;
     std::vector<dc::Predicate> predicates = dc.GetPredicates();
@@ -458,6 +462,31 @@ bool DCVerifier::ContainsNullOrEmpty(std::vector<mo::ColumnIndex> const& indices
                                      size_t tuple_ind) const {
     auto l = [this, tuple_ind](mo::ColumnIndex ind) { return data_[ind].IsNullOrEmpty(tuple_ind); };
     return std::any_of(indices.begin(), indices.end(), l);
+}
+
+std::unordered_map<dc::Point<dc::Component>, size_t, Point::Hasher> DCVerifier::GetFrequencies()
+        const {
+    std::vector<Column::IndexType> indices = dc_.GetColumnIndices();
+    std::unordered_map<dc::Point<dc::Component>, size_t, Point::Hasher> freqs;
+    for (size_t i = 0; i < data_.front().GetNumRows(); ++i) {
+        std::vector<std::byte const*> row = GetRow(i);
+        dc::Point<dc::Component> cur_tuple = MakePoint(row, indices);
+        freqs[cur_tuple]++;
+    }
+    return freqs;
+}
+
+std::vector<std::pair<Point, Point>> DCVerifier::GetRawViolations() const {
+    // We consider same indices for s and t predicates
+    std::vector<Column::IndexType> indices = dc_.GetColumnIndices();
+    std::vector<std::pair<Point, Point>> res;
+    for (auto [first, second] : violations_) {
+        Point first_point = MakePoint(GetRow(first - index_offset_), indices);
+        Point second_point = MakePoint(GetRow(second - index_offset_), indices);
+        res.push_back({std::move(first_point), std::move(second_point)});
+    }
+
+    return res;
 }
 
 }  // namespace algos
