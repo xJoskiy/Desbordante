@@ -8,5 +8,5 @@ target_link_libraries(
     ${NAME}
     PUBLIC ${DESBORDANTE_PREFIX}::config
     PRIVATE ${DESBORDANTE_PREFIX}::cind::miners ${DESBORDANTE_PREFIX}::ind::spider
-            ${DESBORDANTE_PREFIX}::util spdlog::spdlog_header_only Boost::headers
+            ${DESBORDANTE_PREFIX}::util spdlog::spdlog_header_only Boost::headers roaring
 )
